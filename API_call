@@ -1,0 +1,51 @@
+import geopandas as gpd
+import xarray as xr
+import numpy as np
+import pandas as pd
+from pandas import isnull
+from pathlib import Path
+import os, time
+import matplotlib.pyplot as plt
+import requests as r #conda install -c conda-forge requests
+import json
+from pandas.io.json import json_normalize
+
+##get current directory
+cwd_old = os.getcwd()
+#change current directory if needed
+path    = Path("C:/Users/wb433125/OneDrive - WBG/Supply chains/India_nightlights/")
+os.chdir(path)
+cwd_new = os.getcwd()
+print(cwd_new)
+
+################Call API################
+# Make request to get India night lights
+states = ["west-bengal","orissa","andhra-pradesh","tamilnadu"]
+
+for state in states:
+    #print(state)
+    API_response = r.get("http://api.nightlights.io/months/1993.1-2013.12/states/" + state + "/districts")
+    if API_response.status_code == 200:
+        print("API extraction successful:", state) # Print response status code
+    else:
+        print("SOMETHING WRONG with API extraction:", state)
+
+    locals()["NL_data_"+state] = API_response.json()
+    NL_state_JSON = json.dumps(locals()["NL_data_"+state])
+    #print(NL_state_JSON)
+
+    #write out to JSON
+    with open("NL_"+state+".json","w") as f:
+      f.write(NL_state_JSON)
+
+################Read JSON################
+    with open("NL_"+state+".json","r") as f:
+      NL_state_JSON = f.read()
+    NL_state_JSON = json.loads(NL_state_JSON) # decoding the JSON to dictionay
+    #print(NL_state_JSON)
+
+    locals()["NL_data_"+state] = pd.DataFrame.from_dict(NL_state_JSON, orient='columns')
+    print(locals()["NL_data_"+state].head(3))
+
+    #save out
+    locals()["NL_data_"+state].to_csv(cwd_new + '/NL_'+state+'.csv',encoding="utf-8")

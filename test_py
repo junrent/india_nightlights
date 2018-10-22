@@ -1,0 +1,24 @@
+import geopandas as gpd
+import xarray as xr
+import numpy as np
+import pandas as pd
+from pandas import isnull
+from pathlib import Path
+import os, time
+import matplotlib.pyplot as plt
+
+import requests as r #install requests library df_orig_results
+
+##get current directory
+cwd_old = os.getcwd()
+#change current directory if needed
+path    = Path("C:/Users/wb433125/OneDrive - WBG/Supply chains/India_nightlights/")
+os.chdir(path)
+cwd_new = os.getcwd()
+print(cwd_new)
+
+state_SRVIS_file  = cwd_new+'/'+"gujarat.txt"
+cap_co = pd.read_csv(state_SRVIS_file, encoding="utf8")
+print(cap_co.head())
+
+head gujarat.txt
